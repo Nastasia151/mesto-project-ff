@@ -1,4 +1,4 @@
-import { cardTemplate, removeCard, likeCard, openImage } from '../scripts/index.js';
+import { cardTemplate } from '../scripts/index.js';
 
 // @todo: Функция создания карточки
 
@@ -20,7 +20,17 @@ export const createCard = (card, removeCard, likeCard, openImage) => {
     });
 
     likeButton.addEventListener('click', likeCard);  // слушатель на кнопку лайка с вызовом функции лайка
-    cardImage.addEventListener('click', openImage);  // слушатель на картинку в карточке с вызом функции открыть попап
+    cardImage.addEventListener('click', openImage);  // слушатель на картинку в карточке с вызовом функции открыть попап
 
     return cardElement;
+};
+
+// Функция удаления карточки
+export function removeCard (card) {
+    card.remove();
+};
+
+// Функция лайка карточки
+export function likeCard (evt) {
+    evt.target.classList.toggle('card__like-button_is-active');
 };
