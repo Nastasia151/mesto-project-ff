@@ -22,22 +22,19 @@ import { createCard } from '../components/card.js'; // Импорт функци
 // Вывести карточки на страницу
 
 initialCards.forEach(function (card) {
-  cardsContainer.append(createCard (card, removeCard, likeCard, open));
+  cardsContainer.append(createCard (card, removeCard, likeCard, openImage));
 });
     
 // РАБОТА ПОПАПОВ
 
-import { openModal, closeModal, handleOverlayClick } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
+import { openModal, closeModal } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
 
 // функция добавления слушателей для закрытия попапа на
-const closeModalListeners = (popupElement) => {
-  // на крестик 
-  const popupClose = popupElement.querySelector('.popup__close'); // поиск крестика в попапе
-  popupClose.addEventListener('click', () => {
+const handleClosePopup = (popupElement) => {
+  const closePopupButton = popupElement.querySelector('.popup__close'); // поиск крестика в попапе
+  closePopupButton.addEventListener('click', () => {
     closeModal (popupElement);
   });
-  // на оверлей
-  popupElement.addEventListener('mousedown', handleOverlayClick);
 };
 
           // ПОПАП РЕДАКТИРОВАНИЯ ПРОФИЛЯ
@@ -48,7 +45,7 @@ editProfileButton.addEventListener('click', () => {  // Слушатель на 
   openModal(editProfilePopup); // вызов функции открытия попапа редактирования профиля
 });
 
-closeModalListeners(editProfilePopup); // вызов функции закрытия попапа редактирования через клик по крестикам и оверлею
+handleClosePopup(editProfilePopup); // вызов функции закрыть попап редактирования профиля при клике на крестик
 
 const formElementProfile = document.querySelector('.edit-profile__form'); // Форма ввода: изменение данных профиля
 
@@ -76,7 +73,7 @@ newCardButton.addEventListener('click', () => { // Слушатель на кн�
   openModal(newCardPopup);  // вызов функции открытия попапа добавления карточки
 });
 
-closeModalListeners(newCardPopup); // вызов функции закрытия попапа добавления через клик по крестикам и оверлею
+handleClosePopup(newCardPopup); // вызов функции закрыть попап добавления карточки при клике на крестик
 
 const formElementCard = document.querySelector('.new-place__form'); // Форма ввода: добавление новой карточки
 
@@ -90,7 +87,7 @@ function handleCardFormSubmit(evt) {
     name: cardNameInput.value,   // сохранение в ключ имя значения из поля ввода наименование карточки
     link: cardLinkInput.value    // сохранение в ключ ссылка значени из поля ввода ссылка на картчоку
   };
-  const newCard = createCard(card, removeCard, likeCard, open); // сохранение в переменную созданной карточки
+  const newCard = createCard(card, removeCard, likeCard, openImage); // сохранение в переменную созданной карточки
   cardsContainer.prepend(newCard); // длобавление новой карточки в контейнер
   closeModal(newCardPopup); // вызов функции закрыть попап после сохранения
   cardNameInput.value = '';
@@ -101,26 +98,15 @@ formElementCard.addEventListener('submit', handleCardFormSubmit); // Прикр�
 
         // ПОПАП ОТКРЫТЬ ИЗОБРАЖЕНИЕ
 
-export const imagePopup = document.querySelector('.popup_type_image'); // Попап изображения в DOM
+const imagePopup = document.querySelector('.popup_type_image'); // Попап редактирование профиля в DOM
 
-export const showImagePopup = (evt) => {
-  openModal(imagePopup);
-  const imgElement = evt.target;
-  const popupImage = imagePopup.querySelector('.popup__image');
-  const popupCaption = imagePopup.querySelector('.popup__caption');
-  popupImage.src = imgElement.src;
-
+export function openImage (evt) {  // функция открыть картинку и передать в попап ссылку и название
+  const imgElement = evt.target;  // ловим элемент клика
+  const popupImage = imagePopup.querySelector('.popup__image');  // место хранения ссылки на картинкув попапе
+  const popupCaption = imagePopup.querySelector('.popup__caption');  // место хранения названия картинки в попапе
+  popupImage.src = imgElement.src;  // сохранение ссылки на картинку из отловленного элемента в попап
+  popupCaption.textContent = imgElement.alt;  // сохранение названия картинки из отловленного элемента в попап
+  openModal(imagePopup); 
 };
 
-export function open (evt) {
-  const imgElement = evt.target;
-  console.log(imgElement);
-  const popupImage = imagePopup.querySelector('.popup__image');
-  const popupCaption = imagePopup.querySelector('.popup__caption');
-  popupImage.src = imgElement.src;
-  popupCaption.textContent = imgElement.alt;
-
-  openModal(imagePopup);
-};
-
-closeModalListeners(imagePopup);
+handleClosePopup(imagePopup);
