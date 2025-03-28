@@ -84,7 +84,7 @@ const popupImage = imagePopup.querySelector('.popup__image');  // место х�
 const popupCaption = imagePopup.querySelector('.popup__caption');  // место хранения названия картинки в попапе
 
 export function openImage (evt) {  // функция открыть картинку и передать в попап ссылку и название
-  let imgElement = evt.target;  // ловим элемент клика
+  const imgElement = evt.target;  // ловим элемент клика
   popupImage.src = imgElement.src;  // сохранение ссылки на картинку из отловленного элемента в попап
   popupImage.alt = imgElement.alt;
   popupCaption.textContent = imgElement.alt;  // сохранение названия картинки из отловленного элемента в попап
