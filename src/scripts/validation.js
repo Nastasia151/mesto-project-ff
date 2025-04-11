@@ -77,6 +77,9 @@ const showInputError = (formElement, inputElement, errorMessage) => {
      });
   }
 
-const clearValidation = () => {
-
+export const clearValidation = (formElement, inputElement) => {
+    const errorElement = formElement.querySelector(`.${inputElement.id}-error`); 
+    inputElement.classList.remove(validationSettings.inputErrorClass);
+    errorElement.classList.remove(validationSettings.errorClass);
+    errorElement.textContent = ''
 }
