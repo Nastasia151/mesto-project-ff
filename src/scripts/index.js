@@ -2,6 +2,7 @@ import '../pages/index.css';
 import { initialCards } from './cards.js';
 import { createCard, likeCard, removeCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
+import { enableValidation } from './validation.js'; // импорт функции валидации всех инпутов
 
 export const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list'); // Контейнер с карточки в DOM
@@ -34,6 +35,7 @@ editProfileButton.addEventListener('click', () => {  // Слушатель на 
   nameInput.value = profileTitle.textContent; // Сохраняем в textContent переменной новое Имя из формы заполнения
   jobInput.value = profileDescription.textContent;
   openModal(editProfilePopup); // вызов функции открытия попапа редактирования профиля
+  enableValidation();
 });
 
 handleClosePopup(editProfilePopup); // вызов функции закрыть попап редактирования профиля при клике на крестик
@@ -57,6 +59,7 @@ const cardLinkInput = formElementCard.querySelector('.popup__input_type_url'); /
 
 newCardButton.addEventListener('click', () => { // Слушатель на кнопку добавления карточки
   openModal(newCardPopup);  // вызов функции открытия попапа добавления карточки
+  enableValidation();
 });
 
 handleClosePopup(newCardPopup); // вызов функции закрыть попап добавления карточки при клике на крестик
@@ -92,3 +95,4 @@ export function openImage (evt) {  // функция открыть картин
 };
 
 handleClosePopup(imagePopup);
+
