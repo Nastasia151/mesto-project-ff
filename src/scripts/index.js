@@ -3,14 +3,15 @@ import { initialCards } from './cards.js';
 import { createCard, likeCard, removeCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
 import { enableValidation, clearValidation } from './validation.js'; // импорт функции валидации всех инпутов
+import {getInitialCards, getUser, patchUser, postCard } from './API.js';
 
 export const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list'); // Контейнер с карточки в DOM
 
 // Вывести карточки на страницу
-initialCards.forEach(function (card) {
-  cardsContainer.append(createCard (card, removeCard, likeCard, openImage));
-});
+// initialCards.forEach(function (card) {
+//   cardsContainer.append(createCard (card, removeCard, likeCard, openImage));
+// });
     
 // РАБОТА ПОПАПОВ
 
@@ -30,12 +31,13 @@ const nameInput = formElementProfile.querySelector('.popup__input_type_name');  
 const jobInput = formElementProfile.querySelector('.popup__input_type_description'); // Форма ввода Деятельности пользователя
 const profileTitle = document.querySelector('.profile__title'); // Сохранение в переменную место хранения имени пользователя
 const profileDescription = document.querySelector('.profile__description'); // Сохранение в переменную описания деятельности пользователя
+const profileImage = document.querySelector('profile__image')
 
 editProfileButton.addEventListener('click', () => {  // Слушатель на кнопку редактирования профиля
   nameInput.value = profileTitle.textContent; // Сохраняем в textContent переменной новое Имя из формы заполнения
   jobInput.value = profileDescription.textContent;
   openModal(editProfilePopup); // вызов функции открытия попапа редактирования профиля
-  enableValidation();
+
   clearValidation(editProfilePopup, nameInput); // ИСПРАВИТЬ
   clearValidation(editProfilePopup, jobInput);  // ИСПРАВИТЬ
 });
@@ -45,9 +47,18 @@ handleClosePopup(editProfilePopup); // вызов функции закрыть 
 // Обработчик «отправки» формы, хотя пока она никуда отправляться не будет
 function handleFormProfileSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы. Так мы можем определить свою логику отправки. О том, как это делать, расскажем позже.
-  profileTitle.textContent = nameInput.value; // Сохраняем в textContent переменной новое Имя из формы заполнения
-  profileDescription.textContent = jobInput.value; // Сохраняем в textContent переменной новое описание деятельности из формы заполнения
-  closeModal(editProfilePopup); // закрыть попап после отпраки данных
+  patchUser(nameInput.value, jobInput.value)
+    .then((user) => {
+      profileTitle.textContent = user.name; // Сохраняем в textContent переменной новое Имя из формы заполнения
+      profileDescription.textContent = user.about; // Сохраняем в textContent переменной новое описание деятельности из формы заполнения
+    })
+    .then(function () {
+      closeModal(editProfilePopup); // закрыть попап после отпраки данных
+      formElementProfile.reset();
+    })
+    .catch (err => { 
+      console.error(err) 
+    })
 };
 
 formElementProfile.addEventListener('submit', handleFormProfileSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
@@ -61,7 +72,6 @@ const cardLinkInput = formElementCard.querySelector('.popup__input_type_url'); /
 
 newCardButton.addEventListener('click', () => { // Слушатель на кнопку добавления карточки
   openModal(newCardPopup);  // вызов функции открытия попапа добавления карточки
-  enableValidation();
   clearValidation(newCardPopup, cardNameInput); // ИСПРАВИТЬ
   clearValidation(newCardPopup, cardLinkInput);  // ИСПРАВИТЬ
   cardNameInput.value = '';
@@ -73,16 +83,24 @@ handleClosePopup(newCardPopup); // вызов функции закрыть по
 // Обработчик «отправки» формы, хотя пока она никуда отправляться не будет
 function handleCardFormSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы. Так мы можем определить свою логику отправки. О том, как это делать, расскажем позже.
-  const card = { // создание объекта карточки
-    name: cardNameInput.value,   // сохранение в ключ имя значения из поля ввода наименование карточки
-    link: cardLinkInput.value    // сохранение в ключ ссылка значени из поля ввода ссылка на картчоку
-  };
-  const newCard = createCard(card, removeCard, likeCard, openImage); // сохранение в переменную созданной карточки
-  cardsContainer.prepend(newCard); // длобавление новой карточки в контейнер
-  closeModal(newCardPopup); // вызов функции закрыть попап после сохранения
-  cardNameInput.value = '';
-  cardLinkInput.value = ''; 
-
+  postCard(cardNameInput.value, cardLinkInput.value)
+  
+    .then((cardData => {
+      
+      const newCard = {
+        name: cardData.name,
+        alt: cardData.name,
+        link: cardData.link
+      }
+       cardsContainer.prepend(createCard(newCard, removeCard, likeCard, openImage, cardData.owner._id, card));
+    }))
+    .then(function () {
+      closeModal(newCardPopup); // закрыть попап после отпраки данных
+      formElementCard.reset();
+    })
+    .catch (err => { 
+      console.error(err) 
+    })
 };
 
 formElementCard.addEventListener('submit', handleCardFormSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
@@ -103,3 +121,24 @@ export function openImage (evt) {  // функция открыть картин
 
 handleClosePopup(imagePopup);
 
+enableValidation();  // валидация
+
+Promise.all([getInitialCards(), getUser()])
+  .then(([cardArray, userArray]) => {
+    console.log(cardArray);
+    console.log(userArray);
+    profileTitle.textContent = userArray.name;
+    profileDescription.textContent = userArray.about;
+    cardArray.forEach(function (card) {
+      const cardList = {
+        name: card.name,
+        alt: card.name,
+        link: card.link
+      };
+      // сохранение в переменную созданной карточки
+      cardsContainer.append(createCard(cardList, removeCard, likeCard, openImage, userArray._id, card)); // длобавление новой карточки в контейнер
+    });
+  })
+  .catch (err => { 
+    console.error(err) 
+  })
