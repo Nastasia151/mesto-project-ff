@@ -3,7 +3,8 @@ import { initialCards } from './cards.js';
 import { createCard, likeCard, removeCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
 import { enableValidation, clearValidation } from './validation.js'; // импорт функции валидации всех инпутов
-import {getInitialCards, getUser, patchUser, postCard } from './API.js';
+import {getInitialCards, getUser, patchUser, postCard, patchAvatar } from './API.js';
+import { data } from 'autoprefixer';
 
 export const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list'); // Контейнер с карточки в DOM
@@ -51,8 +52,6 @@ function handleFormProfileSubmit(evt) {
     .then((user) => {
       profileTitle.textContent = user.name; // Сохраняем в textContent переменной новое Имя из формы заполнения
       profileDescription.textContent = user.about; // Сохраняем в textContent переменной новое описание деятельности из формы заполнения
-    })
-    .then(function () {
       closeModal(editProfilePopup); // закрыть попап после отпраки данных
       formElementProfile.reset();
     })
@@ -120,6 +119,36 @@ export function openImage (evt) {  // функция открыть картин
 };
 
 handleClosePopup(imagePopup);
+
+// ПОПАП РЕДАКТРРОВАТЬ АВАТАР
+
+const editAvatarButton = document.querySelector('.profile__image-container');
+const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
+const editAvatarForm = document.querySelector('.edit-avatar__form');
+const avatar = document.querySelector('.profile__image');
+const editAvatarInput = editAvatarForm.querySelector('.popup__input_type_url');
+
+editAvatarButton.addEventListener('click', () => {
+  openModal(editAvatarPopup)
+
+});
+
+function handleAvatarFormSubmit (evt) {
+  evt.preventDefault();
+  patchAvatar(editAvatarInput.value)
+   .then((user) => {
+     avatar.src = user.avatar;
+   })
+   .then(function () {
+     closePopup(editAvatarPopup);
+     editAvatarForm.reset();
+   })
+   .catch(function(err) {
+     console.error(err);
+   })
+}
+
+editAvatarForm.addEventListener('submit', handleAvatarFormSubmit); // вызвать функцию при подписи
 
 enableValidation();  // валидация
 
