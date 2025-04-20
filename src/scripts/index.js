@@ -32,7 +32,7 @@ const nameInput = formElementProfile.querySelector('.popup__input_type_name');  
 const jobInput = formElementProfile.querySelector('.popup__input_type_description'); // Форма ввода Деятельности пользователя
 const profileTitle = document.querySelector('.profile__title'); // Сохранение в переменную место хранения имени пользователя
 const profileDescription = document.querySelector('.profile__description'); // Сохранение в переменную описания деятельности пользователя
-const profileImage = document.querySelector('profile__image')
+
 
 editProfileButton.addEventListener('click', () => {  // Слушатель на кнопку редактирования профиля
   nameInput.value = profileTitle.textContent; // Сохраняем в textContent переменной новое Имя из формы заполнения
@@ -48,6 +48,13 @@ handleClosePopup(editProfilePopup); // вызов функции закрыть 
 // Обработчик «отправки» формы, хотя пока она никуда отправляться не будет
 function handleFormProfileSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы. Так мы можем определить свою логику отправки. О том, как это делать, расскажем позже.
+  
+  const submitButton = editProfilePopup.querySelector('.popup__button');
+  const buttonText = submitButton.textContent;
+  
+  submitButton.textContent = 'Сохранение...';
+  submitButton.disabled = true;
+  
   patchUser(nameInput.value, jobInput.value)
     .then((user) => {
       profileTitle.textContent = user.name; // Сохраняем в textContent переменной новое Имя из формы заполнения
@@ -57,6 +64,10 @@ function handleFormProfileSubmit(evt) {
     })
     .catch (err => { 
       console.error(err) 
+    })
+    .finally(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = buttonText;
     })
 };
 
@@ -82,9 +93,15 @@ handleClosePopup(newCardPopup); // вызов функции закрыть по
 // Обработчик «отправки» формы, хотя пока она никуда отправляться не будет
 function handleCardFormSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы. Так мы можем определить свою логику отправки. О том, как это делать, расскажем позже.
-  postCard(cardNameInput.value, cardLinkInput.value)
   
-    .then((cardData => {
+  const submitButton = newCardPopup.querySelector('.popup__button');
+  const buttonText = submitButton.textContent;
+  
+  submitButton.textContent = 'Сохранение...';
+  submitButton.disabled = true;
+  
+  postCard(cardNameInput.value, cardLinkInput.value)
+    .then((cardData) => {
       
       const newCard = {
         name: cardData.name,
@@ -92,13 +109,17 @@ function handleCardFormSubmit(evt) {
         link: cardData.link
       }
        cardsContainer.prepend(createCard(newCard, removeCard, likeCard, openImage, cardData.owner._id, card));
-    }))
+    })
     .then(function () {
       closeModal(newCardPopup); // закрыть попап после отпраки данных
       formElementCard.reset();
     })
     .catch (err => { 
       console.error(err) 
+    })
+    .finally(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = buttonText;
     })
 };
 
@@ -122,35 +143,71 @@ handleClosePopup(imagePopup);
 
 // ПОПАП РЕДАКТРРОВАТЬ АВАТАР
 
-const editAvatarButton = document.querySelector('.profile__image-container');
-const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
-const editAvatarForm = document.querySelector('.edit-avatar__form');
-const avatar = document.querySelector('.profile__image');
-const editAvatarInput = editAvatarForm.querySelector('.popup__input_type_url');
+// const editAvatarButton = document.querySelector('.profile__image-container');
+// const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
+// const editAvatarForm = document.querySelector('.edit-avatar__form');
+// const avatar = document.querySelector('.profile__image');
+// const avatarInput = document.querySelector('.popup__input-avatar-link');
 
-editAvatarButton.addEventListener('click', () => {
-  openModal(editAvatarPopup)
+// editAvatarButton.addEventListener('click', () => {
+//   openModal(editAvatarPopup)
+// });
 
+// function handleAvatarFormSubmit (evt) {
+//   evt.preventDefault();
+//   patchAvatar(avatarInput.value)
+//    .then((res) => {
+//      avatar.src = res.avatar;
+//      closePopup(editAvatarPopup);
+//      editAvatarForm.reset();
+//    })
+//    .catch(function(err) {
+//      console.error(err);
+//    })
+// };
+
+// editAvatarForm.addEventListener('submit', handleAvatarFormSubmit); // вызвать функцию при подписи
+
+// handleClosePopup(editAvatarPopup);
+
+const newAvatarButton = document.querySelector('.profile__image-container');
+const profileImage = document.querySelector('.profile__image');
+const newAvatarPopup = document.querySelector('.popup_type_edit-avatar');
+const newAvatarForm = document.querySelector('.edit-avatar__form');
+const newAvatarInput = newAvatarForm.querySelector('.popup__input-avatar-link');
+
+
+newAvatarButton.addEventListener('click', function () {
+  openModal(newAvatarPopup);
 });
 
-function handleAvatarFormSubmit (evt) {
+handleClosePopup(newAvatarPopup);
+
+function avatarFormSubmit (evt) {
   evt.preventDefault();
-  patchAvatar(editAvatarInput.value)
-   .then((user) => {
-     avatar.src = user.avatar;
-   })
-   .then(function () {
-     closePopup(editAvatarPopup);
-     editAvatarForm.reset();
-   })
-   .catch(function(err) {
-     console.error(err);
-   })
+
+  const submitButton = newAvatarPopup.querySelector('.popup__button');
+  const buttonText = submitButton.textContent;
+
+  submitButton.textContent = 'Сохранение...';
+  submitButton.disabled = true;
+
+  patchAvatar(newAvatarInput.value)
+  .then(function(res) {
+    profileImage.src = res['avatar'];
+    closeModal(newAvatarPopup);
+
+  })
+  .catch (err => { 
+    console.error(err) 
+  })
+  .finally(() => {
+    submitButton.disabled = false;
+    submitButton.textContent = buttonText;
+  })
 }
 
-editAvatarForm.addEventListener('submit', handleAvatarFormSubmit); // вызвать функцию при подписи
-
-enableValidation();  // валидация
+newAvatarForm.addEventListener('submit', avatarFormSubmit);
 
 Promise.all([getInitialCards(), getUser()])
   .then(([cardArray, userArray]) => {
@@ -158,6 +215,7 @@ Promise.all([getInitialCards(), getUser()])
     console.log(userArray);
     profileTitle.textContent = userArray.name;
     profileDescription.textContent = userArray.about;
+    profileImage.src = userArray.avatar;
     cardArray.forEach(function (card) {
       const cardList = {
         name: card.name,
@@ -171,3 +229,5 @@ Promise.all([getInitialCards(), getUser()])
   .catch (err => { 
     console.error(err) 
   })
+
+  enableValidation();  // валидация

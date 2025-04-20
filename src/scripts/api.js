@@ -98,12 +98,12 @@ export const deleteLike = (cardId) => {
   });
 }
 
-export const patchAvatar = (userAvatar) => {
+export function patchAvatar (avatar) {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({
-      avatar: userAvatar
+      avatar: avatar,
     })
   })
   .then(res => {
