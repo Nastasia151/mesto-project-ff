@@ -6,6 +6,7 @@ const config = {
     }
 }
 
+// загрузить карточки с сервера
 export const getInitialCards = () => {
     return fetch(`${config.baseUrl}/cards `, {
       headers: config.headers
@@ -18,6 +19,7 @@ export const getInitialCards = () => {
     });
 };
 
+// загрузить данные пользователя
 export const getUser = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers
@@ -30,6 +32,7 @@ export const getUser = () => {
     });
 };
 
+// обновление данных пользователя (имя, описание)
 export const patchUser = (userName, userAbout) => {
   return fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
@@ -47,6 +50,7 @@ export const patchUser = (userName, userAbout) => {
   });
 }
 
+// добавить пост
 export const postCard = (cardName, cardLink) => {
   return fetch(`${config.baseUrl}/cards`, {
     method: 'POST',
@@ -65,6 +69,7 @@ export const postCard = (cardName, cardLink) => {
   });
 }
 
+// удалить пост
 export const deleteCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',
@@ -72,6 +77,7 @@ export const deleteCard = (cardId) => {
   })
 }
 
+// лайкнуть пост
 export const putLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
@@ -85,6 +91,7 @@ export const putLike = (cardId) => {
   });
 }
 
+// убрать лайк с поста
 export const deleteLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
@@ -98,6 +105,7 @@ export const deleteLike = (cardId) => {
   });
 }
 
+// обновить аватар
 export function patchAvatar (avatar) {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',
