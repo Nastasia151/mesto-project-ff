@@ -4,7 +4,6 @@ import { createCard, likeCard, removeCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js'; // испорт функций открытия и закрытия попапов
 import { enableValidation, clearValidation } from './validation.js'; // импорт функции валидации всех инпутов
 import {getInitialCards, getUser, patchUser, postCard, patchAvatar } from './API.js';
-import { data } from 'autoprefixer';
 
 export const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list'); // Контейнер с карточки в DOM
@@ -27,9 +26,9 @@ const handleClosePopup = (popupElement) => {
           // ПОПАП РЕДАКТИРОВАНИЯ ПРОФИЛЯ
 const editProfilePopup = document.querySelector('.popup_type_edit'); // Попап редактирование профиля в DOM
 const editProfileButton = document.querySelector('.profile__edit-button'); // Кнопка открытия попапа редактирования профиля в DOM
-const formElementProfile = document.querySelector('.edit-profile__form'); // Форма ввода: изменение данных профиля
-const nameInput = formElementProfile.querySelector('.popup__input_type_name');  // Форма ввода Имени пользователя
-const jobInput = formElementProfile.querySelector('.popup__input_type_description'); // Форма ввода Деятельности пользователя
+const editProfileForm = document.querySelector('.edit-profile__form'); // Форма ввода: изменение данных профиля
+const nameInput = editProfileForm.querySelector('.popup__input_type_name');  // Форма ввода Имени пользователя
+const jobInput = editProfileForm.querySelector('.popup__input_type_description'); // Форма ввода Деятельности пользователя
 const profileTitle = document.querySelector('.profile__title'); // Сохранение в переменную место хранения имени пользователя
 const profileDescription = document.querySelector('.profile__description'); // Сохранение в переменную описания деятельности пользователя
 
@@ -38,9 +37,7 @@ editProfileButton.addEventListener('click', () => {  // Слушатель на 
   nameInput.value = profileTitle.textContent; // Сохраняем в textContent переменной новое Имя из формы заполнения
   jobInput.value = profileDescription.textContent;
   openModal(editProfilePopup); // вызов функции открытия попапа редактирования профиля
-
-  clearValidation(editProfilePopup, nameInput); // ИСПРАВИТЬ
-  clearValidation(editProfilePopup, jobInput);  // ИСПРАВИТЬ
+  clearValidation(editProfileForm, validationSettings)
 });
 
 handleClosePopup(editProfilePopup); // вызов функции закрыть попап редактирования профиля при клике на крестик
@@ -60,7 +57,7 @@ function handleFormProfileSubmit(evt) {
       profileTitle.textContent = user.name; // Сохраняем в textContent переменной новое Имя из формы заполнения
       profileDescription.textContent = user.about; // Сохраняем в textContent переменной новое описание деятельности из формы заполнения
       closeModal(editProfilePopup); // закрыть попап после отпраки данных
-      formElementProfile.reset();
+      editProfileForm.reset();
     })
     .catch (err => { 
       console.error(err) 
@@ -71,21 +68,20 @@ function handleFormProfileSubmit(evt) {
     })
 };
 
-formElementProfile.addEventListener('submit', handleFormProfileSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
+editProfileForm.addEventListener('submit', handleFormProfileSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
 
        // ПОПАП СОЗДАНИЕ НОВОЙ КАРТОЧКИ
 const newCardPopup = document.querySelector('.popup_type_new-card'); // Попап добавления карточки в DOM
 const newCardButton = document.querySelector('.profile__add-button'); // Кнопка добавления карточки в DOM
-const formElementCard = document.querySelector('.new-place__form'); // Форма ввода: добавление новой карточки
-const cardNameInput = formElementCard.querySelector('.popup__input_type_card-name'); // Форма ввода наименования карточки
-const cardLinkInput = formElementCard.querySelector('.popup__input_type_url'); // Форма ввода ссылки на картинку
+const newCardForm = document.querySelector('.new-place__form'); // Форма ввода: добавление новой карточки
+const cardNameInput = newCardForm.querySelector('.popup__input_type_card-name'); // Форма ввода наименования карточки
+const cardLinkInput = newCardForm.querySelector('.popup__input_type_url'); // Форма ввода ссылки на картинку
 
 newCardButton.addEventListener('click', () => { // Слушатель на кнопку добавления карточки
   openModal(newCardPopup);  // вызов функции открытия попапа добавления карточки
-  clearValidation(newCardPopup, cardNameInput); // ИСПРАВИТЬ
-  clearValidation(newCardPopup, cardLinkInput);  // ИСПРАВИТЬ
   cardNameInput.value = '';
-  cardLinkInput.value = ''; 
+  cardLinkInput.value = '';
+  clearValidation(newCardForm, validationSettings)
 });
 
 handleClosePopup(newCardPopup); // вызов функции закрыть попап добавления карточки при клике на крестик
@@ -101,18 +97,18 @@ function handleCardFormSubmit(evt) {
   submitButton.disabled = true;
   
   postCard(cardNameInput.value, cardLinkInput.value)
-    .then((cardData) => {
+    .then((card) => {
       
       const newCard = {
-        name: cardData.name,
-        alt: cardData.name,
-        link: cardData.link
+        name: card.name,
+        alt: card.name,
+        link: card.link
       }
-       cardsContainer.prepend(createCard(newCard, removeCard, likeCard, openImage, cardData.owner._id, card));
+       cardsContainer.prepend(createCard(newCard, removeCard, likeCard, openImage, card.owner._id, card));
     })
     .then(function () {
       closeModal(newCardPopup); // закрыть попап после отпраки данных
-      formElementCard.reset();
+      newCardForm.reset();
     })
     .catch (err => { 
       console.error(err) 
@@ -123,7 +119,7 @@ function handleCardFormSubmit(evt) {
     })
 };
 
-formElementCard.addEventListener('submit', handleCardFormSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
+newCardForm.addEventListener('submit', handleCardFormSubmit); // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
 
         // ПОПАП ОТКРЫТЬ ИЗОБРАЖЕНИЕ
 
@@ -143,33 +139,6 @@ handleClosePopup(imagePopup);
 
 // ПОПАП РЕДАКТРРОВАТЬ АВАТАР
 
-// const editAvatarButton = document.querySelector('.profile__image-container');
-// const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
-// const editAvatarForm = document.querySelector('.edit-avatar__form');
-// const avatar = document.querySelector('.profile__image');
-// const avatarInput = document.querySelector('.popup__input-avatar-link');
-
-// editAvatarButton.addEventListener('click', () => {
-//   openModal(editAvatarPopup)
-// });
-
-// function handleAvatarFormSubmit (evt) {
-//   evt.preventDefault();
-//   patchAvatar(avatarInput.value)
-//    .then((res) => {
-//      avatar.src = res.avatar;
-//      closePopup(editAvatarPopup);
-//      editAvatarForm.reset();
-//    })
-//    .catch(function(err) {
-//      console.error(err);
-//    })
-// };
-
-// editAvatarForm.addEventListener('submit', handleAvatarFormSubmit); // вызвать функцию при подписи
-
-// handleClosePopup(editAvatarPopup);
-
 const newAvatarButton = document.querySelector('.profile__image-container');
 const profileImage = document.querySelector('.profile__image');
 const newAvatarPopup = document.querySelector('.popup_type_edit-avatar');
@@ -179,6 +148,8 @@ const newAvatarInput = newAvatarForm.querySelector('.popup__input-avatar-link');
 
 newAvatarButton.addEventListener('click', function () {
   openModal(newAvatarPopup);
+  newAvatarForm.reset();
+  clearValidation(newAvatarForm, validationSettings);
 });
 
 handleClosePopup(newAvatarPopup);
@@ -196,7 +167,7 @@ function avatarFormSubmit (evt) {
   .then(function(res) {
     profileImage.src = res['avatar'];
     closeModal(newAvatarPopup);
-
+    newAvatarForm.reset();
   })
   .catch (err => { 
     console.error(err) 
@@ -230,4 +201,13 @@ Promise.all([getInitialCards(), getUser()])
     console.error(err) 
   })
 
-  enableValidation();  // валидация
+  export const validationSettings = {
+    formSelector: '.popup__form',
+    inputSelector: '.popup__input',
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    inputErrorClass: 'popup__input_type_error',
+    errorClass: 'popup__input-error_active'
+  };
+
+  enableValidation(validationSettings);  // валидация
