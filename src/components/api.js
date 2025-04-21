@@ -4,6 +4,13 @@ const config = {
       authorization: '66818ef8-3ce7-409c-a99e-8deece7cee2c',
       'Content-Type': 'application/json'
     }
+};
+
+const getResponseData = (res) => {
+  if (!res.ok) {
+      return Promise.reject(`Ошибка: ${res.status}`);
+  }
+  return res.json();
 }
 
 // загрузить карточки с сервера
@@ -11,12 +18,7 @@ export const getInitialCards = () => {
     return fetch(`${config.baseUrl}/cards `, {
       headers: config.headers
     })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`);
-    });
+    .then(getResponseData);
 };
 
 // загрузить данные пользователя
@@ -24,12 +26,7 @@ export const getUser = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers
   })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    });
+  .then(getResponseData);
 };
 
 // обновление данных пользователя (имя, описание)
@@ -42,12 +39,7 @@ export const patchUser = (userName, userAbout) => {
       about: userAbout
     })
   })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  .then(getResponseData);
 }
 
 // добавить пост
@@ -61,12 +53,7 @@ export const postCard = (cardName, cardLink) => {
       link: cardLink
     })
   })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  .then(getResponseData);
 }
 
 // удалить пост
@@ -83,12 +70,7 @@ export const putLike = (cardId) => {
     method: 'PUT',
     headers: config.headers
   })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  .then(getResponseData);
 }
 
 // убрать лайк с поста
@@ -97,12 +79,7 @@ export const deleteLike = (cardId) => {
     method: 'DELETE',
     headers: config.headers
   })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  .then(getResponseData);
 }
 
 // обновить аватар
@@ -114,10 +91,5 @@ export function patchAvatar (avatar) {
       avatar: avatar,
     })
   })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  .then(getResponseData);
 }

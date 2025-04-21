@@ -43,7 +43,6 @@ const profileDescription = document.querySelector('.profile__description'); // �
 const profileImage = document.querySelector('.profile__image'); // Аватар пользователя
 
 // Постов
-export const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list'); // Контейнер с карточки в DOM
 
 // функция добавления слушателей для закрытия попапа на крестик
@@ -53,6 +52,17 @@ const handleClosePopup = (popupElement) => {
      closeModal (popupElement);
   });
 };
+
+const renderLoading = (popup, isLoading) => {
+  const submitButton = popup.querySelector('.popup__button');
+  if (isLoading) {
+    submitButton.textContent = 'Сохранение...'; 
+    submitButton.disabled = true;
+  } else {
+    submitButton.textContent = 'Сохранить';
+    submitButton.disabled = false;
+  }
+}
 
           // ОБРАБОТКА РЕДАКТИРОВАНИЯ ПРОФИЛЯ
 
@@ -67,11 +77,10 @@ handleClosePopup(editProfilePopup); // вызов функции закрыть 
 
 // Обработчик «отправки» формы
 function handleFormProfileSubmit(evt) {
-  evt.preventDefault(); 
-  const submitButton = editProfilePopup.querySelector('.popup__button');
-  const buttonText = submitButton.textContent; 
-  submitButton.textContent = 'Сохранение...'; 
-  submitButton.disabled = true; 
+  evt.preventDefault();
+
+  renderLoading(editProfilePopup, true);
+
   patchUser(nameInput.value, jobInput.value)
     .then((user) => {
       profileTitle.textContent = user.name; // данные с сервера
@@ -83,8 +92,7 @@ function handleFormProfileSubmit(evt) {
       console.error(err)
     })
     .finally(() => {
-      submitButton.disabled = false;
-      submitButton.textContent = buttonText;
+      renderLoading(editProfilePopup, false);
     })
 };
 
@@ -100,13 +108,10 @@ handleClosePopup(newAvatarPopup);
 
 function avatarFormSubmit (evt) {
   evt.preventDefault();
-  const submitButton = newAvatarPopup.querySelector('.popup__button');
-  const buttonText = submitButton.textContent;
-  submitButton.textContent = 'Сохранение...';
-  submitButton.disabled = true;
+  renderLoading(newAvatarPopup, true);
   patchAvatar(newAvatarInput.value)
     .then(function(res) {
-      profileImage.src = res['avatar'];
+      profileImage.src = res.avatar;
       closeModal(newAvatarPopup);
       newAvatarForm.reset();
     })
@@ -114,8 +119,7 @@ function avatarFormSubmit (evt) {
       console.error(err)
     })
     .finally(() => {
-      submitButton.disabled = false;
-      submitButton.textContent = buttonText;
+      renderLoading(newAvatarPopup, false);
     })
 }
 
@@ -126,7 +130,8 @@ newAvatarForm.addEventListener('submit', avatarFormSubmit);
 newCardButton.addEventListener('click', () => { 
   openModal(newCardPopup);
   newCardForm.reset();
-  clearValidation(newCardForm, validationSettings)
+  clearValidation(newCardForm, validationSettings);
+  
 });
 
 handleClosePopup(newCardPopup);
@@ -134,10 +139,7 @@ handleClosePopup(newCardPopup);
 // Обработчик «отправки» формы
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
-  const submitButton = newCardPopup.querySelector('.popup__button');
-  const buttonText = submitButton.textContent;
-  submitButton.textContent = 'Сохранение...';
-  submitButton.disabled = true;
+  renderLoading(newCardPopup, true);
   postCard(cardNameInput.value, cardLinkInput.value)
     .then((card) => {
       const newCard = {
@@ -155,8 +157,7 @@ function handleCardFormSubmit(evt) {
       console.error(err)
     })
     .finally(() => {
-      submitButton.disabled = false;
-      submitButton.textContent = buttonText;
+      renderLoading(newCardPopup, false);
     })
 };
 
@@ -177,18 +178,16 @@ handleClosePopup(imagePopup);
 // Загрузить с сервера карточки и данные пользователя
 Promise.all([getInitialCards(), getUser()])
   .then(([cardArray, userArray]) => {
-    console.log(cardArray);
-    console.log(userArray);
     profileTitle.textContent = userArray.name;
     profileDescription.textContent = userArray.about;
     profileImage.src = userArray.avatar;
     cardArray.forEach(function (card) {
-      const cardList = {
+      const cardData = {
         name: card.name,
         alt: card.name,
         link: card.link
       };
-      cardsContainer.append(createCard(cardList, removeCard, likeCard, openImage, userArray._id, card)); // длобавление новой карточки в контейнер
+      cardsContainer.append(createCard(cardData, removeCard, likeCard, openImage, userArray._id, card)); // длобавление новой карточки в контейнер
     });
   })
   .catch (err => { 

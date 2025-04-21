@@ -33,13 +33,21 @@ function hasInvalidInput (inputList)  {  // есть ли хоть один не
   });
 }
 
+const disableSubmitButton = (buttonElement, settings) => {
+  buttonElement.disabled = true;
+    buttonElement.classList.add(settings.inactiveButtonClass);
+};
+
+const enableSubmitButton = (buttonElement, settings) => {
+  buttonElement.disabled = false;
+    buttonElement.classList.remove(settings.inactiveButtonClass);
+};
+
 function toggleButtonState (inputList, buttonElement, settings) { // валидаций кнопки
   if (hasInvalidInput(inputList)) { 
-    buttonElement.disabled = true;
-    buttonElement.classList.add(settings.inactiveButtonClass);
+    disableSubmitButton (buttonElement, settings);
   } else {
-    buttonElement.disabled = false;
-    buttonElement.classList.remove(settings.inactiveButtonClass);
+    enableSubmitButton (buttonElement, settings);
   }
 }
 
@@ -47,7 +55,7 @@ export function clearValidation (formElement, settings) {
   const inputList = Array.from(formElement.querySelectorAll(settings.inputSelector));
   const buttonElement = formElement.querySelector(settings.submitButtonSelector);
 
-  toggleButtonState(inputList, buttonElement, settings);
+  disableSubmitButton (buttonElement, settings);
 
     inputList.forEach((inputElement) => {
       hideInputError(formElement, inputElement, settings);
@@ -70,9 +78,6 @@ function setEventListeners (formElement, settings) {  // слушатели дл
 export function enableValidation (settings) {  // общай функция проверки валидации
     const formList = Array.from(document.querySelectorAll(settings.formSelector));
     formList.forEach((formElement) => {
-    formElement.addEventListener('submit', function (evt) {
-      evt.preventDefault();
-    });
      setEventListeners(formElement, settings);
    });
 };

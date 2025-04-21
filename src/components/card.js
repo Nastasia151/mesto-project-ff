@@ -1,14 +1,14 @@
-import { cardTemplate } from '../scripts/index.js';
 import { deleteCard, putLike, deleteLike } from './api.js';
 
 // @todo: Функция создания карточки
+
+const cardTemplate = document.querySelector('#card-template').content; // Темплейт карточки
 
 export const createCard = (card, removeCard, likeCard, openImage, userId, cardItem) => {
     const cardElement = cardTemplate.querySelector('.card').cloneNode(true); // клонируем темплейт
     
     const cardName = cardElement.querySelector('.card__title'); // тайтл карточки в темплейте
     const cardImage = cardElement.querySelector('.card__image');  // картинка в темплейте
-    const cardImageName = cardElement.querySelector('.card__image'); // alt картинки в темплейте
     const deleteButton = cardElement.querySelector('.card__delete-button');  // кнопка удаления карточки в темплейте
     const likeButton = cardElement.querySelector('.card__like-button');  // кнопка лайка в темплейте
     const likeCounter = cardElement.querySelector('.card__like-counter') // счетчик лайков
@@ -16,12 +16,12 @@ export const createCard = (card, removeCard, likeCard, openImage, userId, cardIt
 
     cardName.textContent = card.name;
     cardImage.src = card.link;
-    cardImageName.alt = card.name;
+    cardImage.alt = card.name;
     likeCounter.textContent = cardItem.likes.length;
     cardElement.id = cardItem._id;
 
     let userLike
-    cardItem.likes.forEach((user) => {
+    cardItem.likes.some((user) => {
         userLike = user._id === userId;
     })
     
